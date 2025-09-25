@@ -3,7 +3,7 @@
 #Taro Katayama
 
 library(shiny)
-install.packages("openxlsx")
+#install.packages("openxlsx")
 library(openxlsx)
 
 
@@ -61,14 +61,21 @@ ui <- fluidPage(
     mainPanel(
       textOutput("status"),
       h4("Last 5 Entries:"),
-      tableOutput("recentDataTable"),  # Display the most recent 5 entries
+      tableOutput("recentDataTable"),
+      hr(),
+      h4("Monthly Summary:"),
+      tableOutput("monthlySummary"),
+      hr(),
+      h4("Quarterly Summary:"),
+      tableOutput("quarterlySummary"),
       hr(),
       h4("All Recorded Data:"),
-      tableOutput("dataTable")  # Display all submitted data
+      tableOutput("dataTable")
     )
   )
 )
 
+# Define server logic
 # Define server logic
 server <- function(input, output, session) {
   
@@ -194,6 +201,53 @@ server <- function(input, output, session) {
   output$dataTable <- renderTable({
     data()
   }, rownames = TRUE)
+  
+  # Monthly summary
+  output$monthlySummary <- renderTable({
+    current_data <- data()
+    if (nrow(current_data) > 0) {
+      # Convert date and extract year-month
+      current_data$Date <- as.Date(current_data$SurveyDate, format = "%m/%d/%Y")
+      current_data$YearMonth <- format(current_data$Date, "%Y-%m")
+      
+      # Calculate monthly totals
+      monthly <- aggregate(cbind(NumberOfPeople, AcresTreated, NumberOfTruckloads, NumberOfBags) ~ YearMonth, 
+                           data = current_data, FUN = sum, na.rm = TRUE)
+      
+      # Add month name for readability
+      monthly$Month <- format(as.Date(paste0(monthly$YearMonth, "-01")), "%B %Y")
+      
+      # Reorder columns
+      monthly <- monthly[c("Month", "NumberOfPeople", "AcresTreated", "NumberOfTruckloads", "NumberOfBags")]
+      names(monthly) <- c("Month", "Total People", "Total Acres", "Total Truckloads", "Total Bags")
+      
+      return(monthly[order(monthly$Month, decreasing = TRUE), ])
+    } else {
+      return(data.frame(Message = "No data available for summary"))
+    }
+  }, rownames = FALSE)
+  
+  # Quarterly summary
+  output$quarterlySummary <- renderTable({
+    current_data <- data()
+    if (nrow(current_data) > 0) {
+      # Convert date and extract year-quarter
+      current_data$Date <- as.Date(current_data$SurveyDate, format = "%m/%d/%Y")
+      current_data$Year <- format(current_data$Date, "%Y")
+      current_data$Quarter <- paste0("Q", ceiling(as.numeric(format(current_data$Date, "%m")) / 3))
+      current_data$YearQuarter <- paste(current_data$Year, current_data$Quarter, sep = "-")
+      
+      # Calculate quarterly totals
+      quarterly <- aggregate(cbind(NumberOfPeople, AcresTreated, NumberOfTruckloads, NumberOfBags) ~ YearQuarter, 
+                             data = current_data, FUN = sum, na.rm = TRUE)
+      
+      names(quarterly) <- c("Quarter", "Total People", "Total Acres", "Total Truckloads", "Total Bags")
+      
+      return(quarterly[order(quarterly$Quarter, decreasing = TRUE), ])
+    } else {
+      return(data.frame(Message = "No data available for summary"))
+    }
+  }, rownames = FALSE)
   
   # Download handler for CSV
   output$downloadData <- downloadHandler(
