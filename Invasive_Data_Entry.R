@@ -3,24 +3,55 @@
 #Taro Katayama
 
 library(shiny)
+install.packages("openxlsx")
+library(openxlsx)
 
-library(shiny)
 
 # Define UI
 ui <- fluidPage(
-  titlePanel("Shorebird Data Entry"),
+  titlePanel("Invasive Species Data Entry"),
   
   sidebarLayout(
     sidebarPanel(
       dateInput("date", "Survey Date:", value = Sys.Date(), format = "mm/dd/yyyy"),
       
-      selectInput("zone", "Zone Class:",
-                  choices = c("Select Zone", "I", "II", "III", "III Boulders", "III Rocky Outcrop")),
+      selectInput("Site", "Site:",
+                  choices = c("Select site", "BT", "CR", "OT", "Gunmount", "HS", "CA", "TS")),
       
-      selectInput("dataType", "Species:",
-                  choices = c("Select Species", "Great Blue Heron", "Great Egret", "Snowy Egret", "People", "Dogs on Leash", "Brown Pelican", "Cormorant", "Black-Bellied Plover", "Willet", "Wandering Tattler", "Spotted Sandpiper", "Marbled Godwit", "Whimbrel", "Ruddy Turnstone", "Black Turnstone", "Surfbird", "Sanderling", "Juvenile Gull", "Western Gull", "California Gull", "Heerman's Gull", "Herring Gull", "Tern", "Unidentified Gull", "Unidentified Bird (non-gull)", "Black Phoebe", "Say's Phoebe")),
+      numericInput("Site Number", "Site Number:", value = 1, min = 1),
+                  
+      numericInput("# of People", "# of People:", value = 1, min = 1),
       
-      numericInput("dataCount", "Data Count:", value = 1, min = 1),
+      numericInput("Acres Treated", "Acres Treated:", value = 0, min = 0),
+      
+      selectInput("Target Species 1", "Target Species 1:",
+                  choices = c("Select species", "ATRSEM", "BRODIA", "BRORUB", "CENMEL", "FESMYU", "FESPER", "HORMUR", "MESCRY",
+                              "MESNOD", "PARINIC", "SAL spp.", "SONASP", "SONOLE")),
+      selectInput("Target Species 2", "Target Species 2:",
+                  choices = c("Select species", "ATRSEM", "BRODIA", "BRORUB", "CENMEL", "FESMYU", "FESPER", "HORMUR", "MESCRY",
+                              "MESNOD", "PARINIC", "SAL spp.", "SONASP", "SONOLE")),
+      selectInput("Target Species 3", "Target Species 3:",
+                  choices = c("Select species", "ATRSEM", "BRODIA", "BRORUB", "CENMEL", "FESMYU", "FESPER", "HORMUR", "MESCRY",
+                              "MESNOD", "PARINIC", "SAL spp.", "SONASP", "SONOLE")),
+      selectInput("Target Species 4", "Target Species 4:",
+                  choices = c("Select species", "ATRSEM", "BRODIA", "BRORUB", "CENMEL", "FESMYU", "FESPER", "HORMUR", "MESCRY",
+                              "MESNOD", "PARINIC", "SAL spp.", "SONASP", "SONOLE")),
+      selectInput("Target Species 5", "Target Species 5:",
+                  choices = c("Select species", "ATRSEM", "BRODIA", "BRORUB", "CENMEL", "FESMYU", "FESPER", "HORMUR", "MESCRY",
+                              "MESNOD", "PARINIC", "SAL spp.", "SONASP", "SONOLE")),
+      selectInput("Target Species 6", "Target Species 6:",
+                  choices = c("Select species", "ATRSEM", "BRODIA", "BRORUB", "CENMEL", "FESMYU", "FESPER", "HORMUR", "MESCRY",
+                              "MESNOD", "PARINIC", "SAL spp.", "SONASP", "SONOLE")),
+      selectInput("Target Species 7", "Target Species 7:",
+                  choices = c("Select species", "ATRSEM", "BRODIA", "BRORUB", "CENMEL", "FESMYU", "FESPER", "HORMUR", "MESCRY",
+                              "MESNOD", "PARINIC", "SAL spp.", "SONASP", "SONOLE")),
+      numericInput("# of Truckloads", "# of Truckloads:", value = 0, min = 0),
+      
+      numericInput("# of Bags", "# of Bags:", value = 0, min = 0),
+      
+      numericInput("Acres Treated", "Acres Treated:", value = 0, min = 0),
+      
+      textInput("Initials", "Enter Initials:", placeholder = "Type here"),
       
       actionButton("submit", "Submit"),
       actionButton("removeLast", "Remove Last Entry"),
@@ -41,40 +72,85 @@ ui <- fluidPage(
 # Define server logic
 server <- function(input, output, session) {
   
-  # Reactive value to store data
-  data <- reactiveVal(data.frame(SurveyDate = character(),
-                                 ZoneClass = factor(levels = c("I", "II", "III", "III Boulders", "III Rocky Outcrop")),
-                                 DataType = character(),
-                                 DataCount = numeric(),
-                                 stringsAsFactors = FALSE))
+  # File path for the Excel file
+  excel_file_path <- "invasive_species_data.xlsx"
   
-  # Reactive value to store the last selected zone
-  lastZone <- reactiveVal("Select Zone")
+  # Load existing data or create empty dataframe
+  if (file.exists(excel_file_path)) {
+    existing_data <- read.xlsx(excel_file_path)
+  } else {
+    existing_data <- data.frame(SurveyDate = character(),
+                                Site = character(),
+                                SiteNumber = numeric(),
+                                NumberOfPeople = numeric(),
+                                AcresTreated = numeric(),
+                                TargetSpecies1 = character(),
+                                TargetSpecies2 = character(),
+                                TargetSpecies3 = character(),
+                                TargetSpecies4 = character(),
+                                TargetSpecies5 = character(),
+                                TargetSpecies6 = character(),
+                                TargetSpecies7 = character(),
+                                NumberOfTruckloads = numeric(),
+                                NumberOfBags = numeric(),
+                                Initials = character(),
+                                stringsAsFactors = FALSE)
+  }
+  
+  # Reactive value to store data
+  data <- reactiveVal(existing_data)
+  
+  # Reactive value to store the last selected site
+  lastSite <- reactiveVal("Select site")
   
   observeEvent(input$submit, {
-    # Create a new row of data with formatted date
+    # Create a new row of data
     new_data <- data.frame(SurveyDate = format(input$date, "%m/%d/%Y"),
-                           ZoneClass = factor(input$zone, levels = c("I", "II", "III", "III Boulders", "III Rocky Outcrop")),
-                           DataType = input$dataType,
-                           DataCount = input$dataCount,
+                           Site = input$Site,
+                           SiteNumber = input$`Site Number`,
+                           NumberOfPeople = input$`# of People`,
+                           AcresTreated = input$`Acres Treated`,
+                           TargetSpecies1 = ifelse(input$`Target Species 1` == "Select species", "", input$`Target Species 1`),
+                           TargetSpecies2 = ifelse(input$`Target Species 2` == "Select species", "", input$`Target Species 2`),
+                           TargetSpecies3 = ifelse(input$`Target Species 3` == "Select species", "", input$`Target Species 3`),
+                           TargetSpecies4 = ifelse(input$`Target Species 4` == "Select species", "", input$`Target Species 4`),
+                           TargetSpecies5 = ifelse(input$`Target Species 5` == "Select species", "", input$`Target Species 5`),
+                           TargetSpecies6 = ifelse(input$`Target Species 6` == "Select species", "", input$`Target Species 6`),
+                           TargetSpecies7 = ifelse(input$`Target Species 7` == "Select species", "", input$`Target Species 7`),
+                           NumberOfTruckloads = input$`# of Truckloads`,
+                           NumberOfBags = input$`# of Bags`,
+                           Initials = input$Initials,
                            stringsAsFactors = FALSE)
     
-    # Append new data to existing data
+    # Append new data
     updated_data <- rbind(data(), new_data)
     data(updated_data)
     
-    # Update last selected zone
-    lastZone(input$zone)
+    # Save to Excel file
+    write.xlsx(updated_data, excel_file_path, overwrite = TRUE)
+    
+    # Update last selected site
+    lastSite(input$Site)
     
     # Update status message
     output$status <- renderText("Data submitted successfully!")
     
-    # Reset other inputs
-    updateSelectInput(session, "dataType", selected = "Select Species")
-    updateNumericInput(session, "dataCount", value = 1)
+    # Reset inputs
+    updateSelectInput(session, "Target Species 1", selected = "Select species")
+    updateSelectInput(session, "Target Species 2", selected = "Select species")
+    updateSelectInput(session, "Target Species 3", selected = "Select species")
+    updateSelectInput(session, "Target Species 4", selected = "Select species")
+    updateSelectInput(session, "Target Species 5", selected = "Select species")
+    updateSelectInput(session, "Target Species 6", selected = "Select species")
+    updateSelectInput(session, "Target Species 7", selected = "Select species")
+    updateNumericInput(session, "Site Number", value = 1)
+    updateNumericInput(session, "# of People", value = 1)
+    updateNumericInput(session, "Acres Treated", value = 0)
+    updateNumericInput(session, "# of Truckloads", value = 0)
+    updateNumericInput(session, "# of Bags", value = 0)
     
-    # Set the zone input to the last selected zone
-    updateSelectInput(session, "zone", selected = lastZone())
+    # Keep the site from the last entry
+    updateSelectInput(session, "Site", selected = lastSite())
   })
   
   # Remove the last entry
@@ -84,50 +160,50 @@ server <- function(input, output, session) {
       # Remove the last row
       updated_data <- current_data[-nrow(current_data), ]
       data(updated_data)
+      
+      # Save to Excel file
+      write.xlsx(updated_data, excel_file_path, overwrite = TRUE)
+      
       output$status <- renderText("Last entry removed successfully!")
       
-      # Update lastZone to the new last entry's zone if there are still entries
+      # Update lastSite
       if (nrow(updated_data) > 0) {
-        lastZone(updated_data$ZoneClass[nrow(updated_data)])
+        lastSite(updated_data$Site[nrow(updated_data)])
       } else {
-        lastZone("Select Zone")  # Reset if no entries are left
+        lastSite("Select site")
       }
     } else {
       output$status <- renderText("No entries to remove.")
     }
   })
   
-  # Display the most recent 5 entries in a table
+  # Display the most recent 5 entries
   output$recentDataTable <- renderTable({
     current_data <- data()
     if (nrow(current_data) > 0) {
-      # Get the indices for the most recent 5 entries (or fewer if less than 5 entries exist)
       start_idx <- max(1, nrow(current_data) - 4)
       recent_data <- current_data[start_idx:nrow(current_data), ]
-      # Reverse the order to show the most recent at the top
       recent_data <- recent_data[nrow(recent_data):1, ]
       return(recent_data)
     } else {
       return(data.frame(Message = "No data entered yet"))
     }
-  }, rownames = FALSE)  # Don't include row names for the recent entries
+  }, rownames = FALSE)
   
-  # Display all submitted data in a table
+  # Display all submitted data
   output$dataTable <- renderTable({
     data()
-  }, rownames = TRUE)  # Include row names for the full history
+  }, rownames = TRUE)
   
   # Download handler for CSV
   output$downloadData <- downloadHandler(
     filename = function() {
-      paste("shorebird_data_", Sys.Date(), ".csv", sep = "")
+      paste("invasive_species_data_", Sys.Date(), ".csv", sep = "")
     },
     content = function(file) {
-      # Specify the path where the CSV will be saved
       write.csv(data(), file, row.names = FALSE)
     }
   )
 }
-
 # Run the application 
 shinyApp(ui = ui, server = server)
