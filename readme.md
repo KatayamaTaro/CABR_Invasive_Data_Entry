@@ -6,7 +6,7 @@
 
 A Shiny-based desktop application for logging invasive species removal data, tracking effort metrics, and generating automated summaries.
 
-## 📁 Project Structure
+##  Project Structure
 The project is organized to keep scripts and data separate for easy management:
 * **`Invasive_Data_Entry.R`**: The main application script (located in the root).
 * **`Data/`**: A subdirectory created automatically to store the database.
