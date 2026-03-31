@@ -65,7 +65,6 @@ ui <- fluidPage(
       
       actionButton("submit", "Submit"),
       actionButton("removeLast", "Remove Last Entry")
-      # Download button removed per request
     ),
     
     mainPanel(
@@ -281,7 +280,6 @@ server <- function(input, output, session) {
     }
   }, rownames = FALSE)
   
-  # Download handler removed per request
 }
 
 # Run application
