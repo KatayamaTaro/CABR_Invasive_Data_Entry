@@ -36,7 +36,6 @@ The app maintains a single Excel workbook with three automated tabs:
 
 > **Note**: Always close the Excel file before clicking "Submit" in the app, or the save will fail due to a file-lock error.
 
-```
 
 
 
