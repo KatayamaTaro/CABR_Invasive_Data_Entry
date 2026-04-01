@@ -8,6 +8,7 @@
 #*################################################################################################
 # Ensure the working directory is set to the main project folder
 # This allows "Data/..." paths to work regardless of where the script is run from
+getwd()
 #setwd("C:/Users/tkatayama/OneDrive - DOI/Documents/Projects/R/Invasives_Data_Entry")
 
 library(shiny)
