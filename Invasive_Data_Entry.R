@@ -269,6 +269,7 @@ server <- function(input, output, session) {
   }
   
   # Load existing data or create empty dataframe
+  
   if (file.exists(excel_file_path)) {
     existing_data <- read.xlsx(excel_file_path, sheet = "Data")
   } else {
@@ -284,6 +285,19 @@ server <- function(input, output, session) {
                                 TargetSpecies5 = character(),
                                 TargetSpecies6 = character(),
                                 TargetSpecies7 = character(),
+                                TargetSpecies8 = character(), 
+                                TargetSpecies9 = character(), 
+                                TargetSpecies10 = character(), 
+                                TargetSpecies11 = character(), 
+                                TargetSpecies12 = character(), 
+                                TargetSpecies13 = character(), 
+                                TargetSpecies14 = character(), 
+                                TargetSpecies15 = character(), 
+                                TargetSpecies16 = character(), 
+                                TargetSpecies17 = character(), 
+                                TargetSpecies18 = character(), 
+                                TargetSpecies19 = character(), 
+                                TargetSpecies20 = character(),
                                 NumberOfTruckloads = numeric(),
                                 NumberOfBags = numeric(),
                                 TotalTime = numeric(),
@@ -314,6 +328,19 @@ server <- function(input, output, session) {
                            TargetSpecies5 = ifelse(input$`Target Species 5` == "Select species", "", input$`Target Species 5`),
                            TargetSpecies6 = ifelse(input$`Target Species 6` == "Select species", "", input$`Target Species 6`),
                            TargetSpecies7 = ifelse(input$`Target Species 7` == "Select species", "", input$`Target Species 7`),
+                           TargetSpecies8 = ifelse(input$`Target Species 8` == "Select species", "", input$`Target Species 8`),
+                           TargetSpecies9 = ifelse(input$`Target Species 9` == "Select species", "", input$`Target Species 9`),
+                           TargetSpecies10 = ifelse(input$`Target Species 10` == "Select species", "", input$`Target Species 10`),
+                           TargetSpecies11 = ifelse(input$`Target Species 11` == "Select species", "", input$`Target Species 11`),
+                           TargetSpecies12 = ifelse(input$`Target Species 12` == "Select species", "", input$`Target Species 12`),
+                           TargetSpecies13 = ifelse(input$`Target Species 13` == "Select species", "", input$`Target Species 13`),
+                           TargetSpecies14 = ifelse(input$`Target Species 14` == "Select species", "", input$`Target Species 14`),
+                           TargetSpecies15 = ifelse(input$`Target Species 15` == "Select species", "", input$`Target Species 15`),
+                           TargetSpecies16 = ifelse(input$`Target Species 16` == "Select species", "", input$`Target Species 16`),
+                           TargetSpecies17 = ifelse(input$`Target Species 17` == "Select species", "", input$`Target Species 17`),
+                           TargetSpecies18 = ifelse(input$`Target Species 18` == "Select species", "", input$`Target Species 18`),
+                           TargetSpecies19 = ifelse(input$`Target Species 19` == "Select species", "", input$`Target Species 19`),
+                           TargetSpecies20 = ifelse(input$`Target Species 20` == "Select species", "", input$`Target Species 20`),
                            NumberOfTruckloads = input$`# of Truckloads`,
                            NumberOfBags = input$`# of Bags`,
                            TotalTime = input$`Total Time`,
@@ -333,13 +360,26 @@ server <- function(input, output, session) {
     })
     
     # Reset inputs after successful submission
-    updateSelectInput(session, "Target Species 1", selected = "Select species")
-    updateSelectInput(session, "Target Species 2", selected = "Select species")
-    updateSelectInput(session, "Target Species 3", selected = "Select species")
-    updateSelectInput(session, "Target Species 4", selected = "Select species")
-    updateSelectInput(session, "Target Species 5", selected = "Select species")
-    updateSelectInput(session, "Target Species 6", selected = "Select species")
-    updateSelectInput(session, "Target Species 7", selected = "Select species")
+    updateSelectInput(session, "Target Species 1", selected = "Select Species")
+    updateSelectInput(session, "Target Species 2", selected = "Select Species")
+    updateSelectInput(session, "Target Species 3", selected = "Select Species")
+    updateSelectInput(session, "Target Species 4", selected = "Select Species")
+    updateSelectInput(session, "Target Species 5", selected = "Select Species")
+    updateSelectInput(session, "Target Species 6", selected = "Select Species")
+    updateSelectInput(session, "Target Species 7", selected = "Select Species")
+    updateSelectInput(session, "Target Species 8", selected = "Select Species")
+    updateSelectInput(session, "Target Species 9", selected = "Select Species")
+    updateSelectInput(session, "Target Species 10", selected = "Select Species")
+    updateSelectInput(session, "Target Species 11", selected = "Select Species")
+    updateSelectInput(session, "Target Species 12", selected = "Select Species")
+    updateSelectInput(session, "Target Species 13", selected = "Select Species")
+    updateSelectInput(session, "Target Species 14", selected = "Select Species")
+    updateSelectInput(session, "Target Species 15", selected = "Select Species")
+    updateSelectInput(session, "Target Species 16", selected = "Select Species")
+    updateSelectInput(session, "Target Species 17", selected = "Select Species")
+    updateSelectInput(session, "Target Species 18", selected = "Select Species")
+    updateSelectInput(session, "Target Species 19", selected = "Select Species")
+    updateSelectInput(session, "Target Species 20", selected = "Select Species")
     updateNumericInput(session, "Site Number", value = 1)
     updateNumericInput(session, "# of People", value = 1)
     updateNumericInput(session, "Acres Treated", value = 0)
