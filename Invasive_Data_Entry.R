@@ -311,7 +311,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$submit, {
     # VALIDATION: Check if # of bags is 0
-    if (input$`# of Bags` <= 0) {
+    if (input$`# of Bags` <= 0 && input$'Trim Hours' <= 0) {
       output$status <- renderText("ERROR: Submission blocked. You must enter a number of bags greater than 0.")
       return() # Exit the function early without saving
     }
